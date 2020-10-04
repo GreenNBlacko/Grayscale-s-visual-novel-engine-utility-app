@@ -28,9 +28,14 @@ public class Character : MonoBehaviour {
 	public GameObject[] CharacterColorObjects = new GameObject[6];
 	public Image[] CharacterColorDisplays = new Image[6];
 
-	private GameObject CharacterColorList;
+	public GameObject CharacterColorList;
 
 	void Start() {
+		if (CharacterColorList != null) { SetValues(); return; }
+		CreateColorMenus();
+	}
+
+	public void CreateColorMenus(bool overrideColors = false) {
 		CharacterColorList = new GameObject(CharacterName + "Colors");
 
 		ColorMenus.Add(Instantiate(ColorMenuPrefab, CharacterColorList.transform));
@@ -52,7 +57,54 @@ public class Character : MonoBehaviour {
 		Colors[4].Title.text = "Sentence data: Text Gradient Color(" + CharacterName + ")";
 		Colors[5].Title.text = "Sentence data: Gradient Color(" + CharacterName + ")";
 
-		SetValues();
+		if (GradientType == 0) {
+			UseSeperateGradientColorsToggle.transform.parent.gameObject.SetActive(false);
+			CharacterColorObjects[3].SetActive(false);
+			CharacterColorObjects[4].SetActive(false);
+			CharacterColorObjects[5].SetActive(false);
+		} else if (GradientType == 1) {
+			UseSeperateGradientColorsToggle.transform.parent.gameObject.SetActive(false);
+			CharacterColorObjects[3].SetActive(true);
+			CharacterColorObjects[4].SetActive(false);
+			CharacterColorObjects[5].SetActive(false);
+
+		} else if (GradientType == 2) {
+			UseSeperateGradientColorsToggle.transform.parent.gameObject.SetActive(false);
+			CharacterColorObjects[3].SetActive(false);
+			CharacterColorObjects[4].SetActive(true);
+			CharacterColorObjects[5].SetActive(false);
+		} else if (GradientType == 3) {
+			UseSeperateGradientColorsToggle.transform.parent.gameObject.SetActive(true);
+		}
+
+		if (UseSeperateColors && UseSeperateColorsToggle.transform.parent.gameObject.activeInHierarchy) {
+			CharacterColorObjects[0].SetActive(true);
+			CharacterColorObjects[1].SetActive(true);
+			CharacterColorObjects[2].SetActive(false);
+		} else {
+			CharacterColorObjects[0].SetActive(false);
+			CharacterColorObjects[1].SetActive(false);
+			CharacterColorObjects[2].SetActive(true);
+		}
+
+		if (UseSeperateGradientColors && GradientType == 3 && UseSeperateGradientColorsToggle.transform.parent.gameObject.activeInHierarchy) {
+			CharacterColorObjects[3].SetActive(true);
+			CharacterColorObjects[4].SetActive(true);
+			CharacterColorObjects[5].SetActive(false);
+		} else if (GradientType == 3 && !UseSeperateGradientColors && UseSeperateGradientColorsToggle.transform.parent.gameObject.activeInHierarchy) {
+			CharacterColorObjects[3].SetActive(false);
+			CharacterColorObjects[4].SetActive(false);
+			CharacterColorObjects[5].SetActive(true);
+		}
+
+		if (overrideColors) {
+			SetColorMenuColor(0, new byte[3] { NameColor.r, NameColor.g, NameColor.b });
+			SetColorMenuColor(1, new byte[3] { TextColor.r, TextColor.g, TextColor.b });
+			SetColorMenuColor(2, new byte[3] { Color.r, Color.g, Color.b });
+			SetColorMenuColor(3, new byte[3] { NameGradientColor.r, NameGradientColor.g, NameGradientColor.b });
+			SetColorMenuColor(4, new byte[3] { TextGradientColor.r, TextGradientColor.g, TextGradientColor.b });
+			SetColorMenuColor(5, new byte[3] { GradientColor.r, GradientColor.g, GradientColor.b });
+		}
 
 		CloseColorMenu(0);
 		CloseColorMenu(1);
@@ -60,9 +112,15 @@ public class Character : MonoBehaviour {
 		CloseColorMenu(3);
 		CloseColorMenu(4);
 		CloseColorMenu(5);
+
+		SetValues();
 	}
 
-	public void SetValues() { 
+	public void SetColorMenuColor(int index, byte[] colorRGB) {
+		Colors[index].SetColor(colorRGB);
+	}
+
+	public void SetValues() {
 		CharacterName = CharacterNameInput.text;
 		UseSeperateColors = UseSeperateColorsToggle.isOn;
 		GradientType = GradientTypeDropdown.value;

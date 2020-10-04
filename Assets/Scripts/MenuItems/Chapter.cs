@@ -1,10 +1,8 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using System.Collections.Generic;
 using TMPro;
+using UnityEngine;
 
-public class Chapter : MonoBehaviour
-{
+public class Chapter : MonoBehaviour {
 	public string ChapterName;
 	public int NextChapter;
 
@@ -17,8 +15,11 @@ public class Chapter : MonoBehaviour
 	public TMP_InputField ChapterNameInput;
 	public TMP_Dropdown NextChapterList;
 
+	private JsonFileIO fileIO;
+
 	void Start() {
 		MenuSystem = FindObjectOfType<MenuSystem>();
+		fileIO = FindObjectOfType<JsonFileIO>();
 
 		List<string> options = new List<string>();
 
@@ -48,17 +49,19 @@ public class Chapter : MonoBehaviour
 		menu.MenuObject = SentencesMenu.transform;
 
 		MenuSystem.menus.Add(menu);
+	}
 
+	public void CreateSentenceSubmenus() {
+		if (SentencesMenu.GetComponent<ItemMenu>().ItemList.childCount <= 1) { return; }
 		foreach (Transform sen in SentencesMenu.GetComponent<ItemMenu>().ItemList) {
-			sen.TryGetComponent(out Sentence sentence);
-			if (sentence == null) { continue; }
-			sentence.UpdateMenuNames();
+			if (!sen.TryGetComponent(out Sentence sentence)) { continue; }
+			if (sentence.ChoicesMenu != null) { continue; }
 			sentence.CreateMenus();
 		}
 	}
 
 	void Update() {
-		List<string> options = ReturnAllChapters();
+		List<string> options = fileIO.ReturnAllChapters();
 
 		int tmp = NextChapterList.value;
 
@@ -67,13 +70,13 @@ public class Chapter : MonoBehaviour
 			NextChapterList.AddOptions(options);
 		}
 
-		for(int i = 0; i < NextChapterList.options.Count; i++) {
-			if(i >= options.Count) {
+		for (int i = 0; i < NextChapterList.options.Count; i++) {
+			if (i >= options.Count) {
 				NextChapterList.ClearOptions();
 				NextChapterList.AddOptions(options);
 				break;
 			}
-			if(options[i] != NextChapterList.options[i].text) {
+			if (options[i] != NextChapterList.options[i].text) {
 				NextChapterList.ClearOptions();
 				NextChapterList.AddOptions(options);
 			}
@@ -87,7 +90,6 @@ public class Chapter : MonoBehaviour
 	}
 
 	public void ShowSentenceMenu() {
-		Debug.Log(SentencesMenu.GetComponent<ItemMenu>().MenuName);
 		MenuSystem.LoadMenu(SentencesMenu.GetComponent<ItemMenu>().MenuName);
 	}
 
@@ -99,8 +101,8 @@ public class Chapter : MonoBehaviour
 
 		int index = 0;
 
-		foreach(Menu item in MenuSystem.menus) {
-			if(item.MenuObject == menu.MenuObject) {
+		foreach (Menu item in MenuSystem.menus) {
+			if (item.MenuObject == menu.MenuObject) {
 				index = MenuSystem.menus.IndexOf(item);
 			}
 		}
@@ -114,7 +116,7 @@ public class Chapter : MonoBehaviour
 		foreach (Transform sen in SentencesMenu.GetComponent<ItemMenu>().ItemList) {
 			sen.TryGetComponent(out Sentence sentence);
 
-			if(sentence == null) { continue; }
+			if (sentence == null) { continue; }
 			sentence.UpdateMenuNames();
 		}
 	}
@@ -126,14 +128,14 @@ public class Chapter : MonoBehaviour
 		if (SentencesMenu.GetComponent<ItemMenu>().ItemList.childCount == 1) { return; }
 		foreach (Transform sen in SentencesMenu.GetComponent<ItemMenu>().ItemList) {
 			sen.TryGetComponent(out Sentence sentence);
-			if(sentence == null) { continue; }
+			if (sentence == null) { continue; }
 			sentence.UpdateMenuNames();
-			sentence.CreateMenus();
 		}
 	}
 
 	public void SetValues() {
-		List<string> options = ReturnAllChapters();
+		fileIO = FindObjectOfType<JsonFileIO>();
+		List<string> options = fileIO.ReturnAllChapters();
 
 		if (options.Count != NextChapterList.options.Count) {
 			NextChapterList.ClearOptions();
@@ -166,43 +168,23 @@ public class Chapter : MonoBehaviour
 
 	public void RemoveItem() {
 		Menu menu = new Menu();
-		menu.MenuName = SentencesMenu.GetComponent<ItemMenu>().MenuName;
 		menu.MenuObject = SentencesMenu.transform;
 
-		int index = 0;
+		foreach (Transform sen in SentencesMenu.GetComponent<ItemMenu>().ItemList) {
+			if (!sen.TryGetComponent(out Sentence sentence)) { continue; }
+			sentence.RemoveItem();
+			Debug.Log(sentence.Text);
+		}
 
 		foreach (Menu item in MenuSystem.menus) {
 			if (item.MenuObject == menu.MenuObject) {
-				index = MenuSystem.menus.IndexOf(item);
-			}
-		}
-
-		MenuSystem.menus.Remove(MenuSystem.menus[index]);
-
-		if (SentencesMenu.GetComponent<ItemMenu>().ItemList.childCount > 1) { 
-			foreach (Transform sen in SentencesMenu.GetComponent<ItemMenu>().ItemList) {
-				sen.TryGetComponent(out Sentence sentence);
-				if(sentence == null) { continue; }
-				sentence.RemoveItem();
+				MenuSystem.menus.Remove(item);
+				break;
 			}
 		}
 
 		Destroy(SentencesMenu);
 		Destroy(this.gameObject);
-	}
-
-	public List<string> ReturnAllChapters() {
-		List<string> chapterNames = new List<string>();
-
-		chapterNames.Add("None");
-
-		foreach (Transform child in transform.parent) {
-			
-			if(!child.TryGetComponent(out Chapter chapter)) { continue; }
-			chapterNames.Add(chapter.ChapterName);
-		}
-
-		return chapterNames;
 	}
 
 	public ItemMenu GetSentencesMenu() {

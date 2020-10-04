@@ -114,6 +114,14 @@ public class ColorMenu : MonoBehaviour {
 		return OutColor;
 	}
 
+	public void SetColor(byte[] colorRGB) {
+		RValue.SetValue(colorRGB[0]);
+		GValue.SetValue(colorRGB[1]);
+		BValue.SetValue(colorRGB[2]);
+
+		UpdateColorRGB();
+	}
+
 	public void CloseMenu() {
 		character.CloseColorMenu(transform.GetSiblingIndex());
 	}

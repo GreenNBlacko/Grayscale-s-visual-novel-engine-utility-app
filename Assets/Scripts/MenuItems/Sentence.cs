@@ -26,10 +26,12 @@ public class Sentence : MonoBehaviour {
 	public GameObject ChoicesMenuPrefab;
 	public GameObject SentenceActionsMenuPrefab;
 
-	private GameObject ChoicesMenu;
-	private GameObject SentenceActionsMenu;
+	public GameObject ChoicesMenu;
+	public GameObject SentenceActionsMenu;
 
 	public string CharactersMenuName;
+
+	private JsonFileIO fileIO;
 
 
 	// Start is called before the first frame update
@@ -37,14 +39,15 @@ public class Sentence : MonoBehaviour {
 		SetValues();
 
 		MenuSystem = FindObjectOfType<MenuSystem>();
+		fileIO = FindObjectOfType<JsonFileIO>();
 
-		if(ChoicesMenu != null) { return; }
+		if (ChoicesMenu != null || SentenceActionsMenu != null) { return; }
 
 		CreateMenus();
 	}
 
 	private void Update() {
-		List<string> options = GetCharacterList();
+		List<string> options = fileIO.GetCharacterList();
 
 		int tmp = NameDropDown.value;
 
@@ -71,7 +74,7 @@ public class Sentence : MonoBehaviour {
 			NameDropDown.value = 0;
 		}
 
-		options = GetArtworkList(ArtworkType - 1);
+		options = fileIO.GetArtworkList(ArtworkType - 1);
 
 		tmp = ArtworkNameDropDown.value;
 
@@ -104,9 +107,9 @@ public class Sentence : MonoBehaviour {
 
 		ChoicesMenu = Instantiate(ChoicesMenuPrefab);
 
-		ChoicesMenu.GetComponent<ItemMenu>().MenuName = MenuSystem.currentlyLodadedMenu.Replace("Sentences", "/") + transform.GetSiblingIndex() + "Choices";
-		ChoicesMenu.name = MenuSystem.currentlyLodadedMenu.Replace("Sentences", "/") + transform.GetSiblingIndex() + "Choices";
-		ChoicesMenu.GetComponent<ItemMenu>().title.text = "Sentence data: Choices(" + MenuSystem.currentlyLodadedMenu.Replace("Sentences", "/Sentence Index - ") + transform.GetSiblingIndex() + ")";
+		ChoicesMenu.GetComponent<ItemMenu>().MenuName = transform.parent.parent.parent.parent.parent.GetComponent<ItemMenu>().MenuName.Replace("Sentences", "/") + transform.GetSiblingIndex() + "Choices";
+		ChoicesMenu.name = transform.parent.parent.parent.parent.parent.GetComponent<ItemMenu>().MenuName.Replace("Sentences", "/") + transform.GetSiblingIndex() + "Choices";
+		ChoicesMenu.GetComponent<ItemMenu>().title.text = "Sentence data: Choices(" + transform.parent.parent.parent.parent.parent.GetComponent<ItemMenu>().MenuName.Replace("Sentences", "/Sentence Index - ") + transform.GetSiblingIndex() + ")";
 
 		ChoicesMenu.GetComponent<ItemMenu>().ParentMenu = MenuSystem.currentlyLodadedMenu;
 
@@ -121,11 +124,11 @@ public class Sentence : MonoBehaviour {
 
 		SentenceActionsMenu = Instantiate(SentenceActionsMenuPrefab);
 
-		SentenceActionsMenu.GetComponent<ItemMenu>().MenuName = MenuSystem.currentlyLodadedMenu.Replace("Sentences", "/") + transform.GetSiblingIndex() + "SentenceActions";
-		SentenceActionsMenu.name = MenuSystem.currentlyLodadedMenu.Replace("Sentences", "/") + transform.GetSiblingIndex() + "SentenceActions";
-		SentenceActionsMenu.GetComponent<ItemMenu>().title.text = "Sentence data: Sentence Actions(" + MenuSystem.currentlyLodadedMenu.Replace("Sentences", "/Sentence Index - ") + transform.GetSiblingIndex() + ")";
+		SentenceActionsMenu.GetComponent<ItemMenu>().MenuName = transform.parent.parent.parent.parent.parent.GetComponent<ItemMenu>().MenuName.Replace("Sentences", "/") + transform.GetSiblingIndex() + "SentenceActions";
+		SentenceActionsMenu.name = transform.parent.parent.parent.parent.parent.GetComponent<ItemMenu>().MenuName.Replace("Sentences", "/") + transform.GetSiblingIndex() + "SentenceActions";
+		SentenceActionsMenu.GetComponent<ItemMenu>().title.text = "Sentence data: Sentence Actions(" + transform.parent.parent.parent.parent.parent.GetComponent<ItemMenu>().MenuName.Replace("Sentences", "/Sentence Index - ") + transform.GetSiblingIndex() + ")";
 
-		SentenceActionsMenu.GetComponent<ItemMenu>().ParentMenu = MenuSystem.currentlyLodadedMenu;
+		SentenceActionsMenu.GetComponent<ItemMenu>().ParentMenu = transform.parent.parent.parent.parent.parent.GetComponent<ItemMenu>().ParentMenu;
 
 		SentenceActionsMenu.SetActive(false);
 
@@ -155,143 +158,107 @@ public class Sentence : MonoBehaviour {
 		voiced = VoicedToggle.isOn;
 		VAClipPath = VAClipInput.text;
 
-		if(ArtworkType == 0 && ArtworkNameDropDown.transform.parent.gameObject.activeInHierarchy) {
+		if (ArtworkType == 0 && ArtworkNameDropDown.transform.parent.gameObject.activeInHierarchy) {
 			ArtworkNameDropDown.transform.parent.gameObject.SetActive(false);
-		} 
-		if(ArtworkType != 0 && !ArtworkNameDropDown.transform.parent.gameObject.activeInHierarchy) {
+		}
+		if (ArtworkType != 0 && !ArtworkNameDropDown.transform.parent.gameObject.activeInHierarchy) {
 			ArtworkNameDropDown.transform.parent.gameObject.SetActive(true);
 		}
 
 		if (Choice && !ChoiceButton.transform.parent.gameObject.activeInHierarchy) {
 			ChoiceButton.transform.parent.gameObject.SetActive(true);
-		} 
-		if(!Choice && ChoiceButton.transform.parent.gameObject.activeInHierarchy) {
+		}
+		if (!Choice && ChoiceButton.transform.parent.gameObject.activeInHierarchy) {
 			ChoiceButton.transform.parent.gameObject.SetActive(false);
 		}
 
 		if (voiced && !VAClipInput.transform.parent.gameObject.activeInHierarchy) {
 			VAClipInput.transform.parent.gameObject.SetActive(true);
-		} 
-		if(!voiced && VAClipInput.transform.parent.gameObject.activeInHierarchy) {
+		}
+		if (!voiced && VAClipInput.transform.parent.gameObject.activeInHierarchy) {
 			VAClipInput.transform.parent.gameObject.SetActive(false);
 		}
 	}
 
 	public void UpdateMenuNames() {
 		Menu menu = new Menu();
-		menu.MenuName = ChoicesMenu.GetComponent<ItemMenu>().MenuName;
 		menu.MenuObject = ChoicesMenu.transform;
 
-		int index = 0;
-
 		foreach (Menu item in MenuSystem.menus) {
-			if (item.MenuObject == menu.MenuObject) {
-				index = MenuSystem.menus.IndexOf(item);
+			if (item.MenuObject.gameObject == ChoicesMenu && item.MenuName == ChoicesMenu.name) {
+				item.MenuName = transform.parent.parent.parent.parent.parent.GetComponent<ItemMenu>().MenuName.Replace("Sentences", "/") + transform.GetSiblingIndex() + "Choices";
+				break;
 			}
 		}
 
-		MenuSystem.menus[index].MenuName = MenuSystem.currentlyLodadedMenu.Replace("Sentences", "/") + transform.GetSiblingIndex() + "Choices";
+		ChoicesMenu.GetComponent<ItemMenu>().MenuName = transform.parent.parent.parent.parent.parent.GetComponent<ItemMenu>().MenuName.Replace("Sentences", "/") + transform.GetSiblingIndex() + "Choices";
+		ChoicesMenu.name = transform.parent.parent.parent.parent.parent.GetComponent<ItemMenu>().MenuName.Replace("Sentences", "/") + transform.GetSiblingIndex() + "Choices";
+		ChoicesMenu.GetComponent<ItemMenu>().title.text = "Sentence data: Choices(" + transform.parent.parent.parent.parent.parent.GetComponent<ItemMenu>().MenuName.Replace("Sentences", "/Sentence Index - ") + transform.GetSiblingIndex() + ")";
 
-		ChoicesMenu.GetComponent<ItemMenu>().MenuName = MenuSystem.currentlyLodadedMenu.Replace("Sentences", "/") + transform.GetSiblingIndex() + "Choices";
-		ChoicesMenu.name = MenuSystem.currentlyLodadedMenu.Replace("Sentences", "/") + transform.GetSiblingIndex() + "Choices";
-		ChoicesMenu.GetComponent<ItemMenu>().title.text = "Sentence data: Choices(" + MenuSystem.currentlyLodadedMenu.Replace("Sentences", "/Sentence Index - ") + transform.GetSiblingIndex() + ")";
-
-		ChoicesMenu.GetComponent<ItemMenu>().ParentMenu = MenuSystem.currentlyLodadedMenu;
+		ChoicesMenu.GetComponent<ItemMenu>().ParentMenu = transform.parent.parent.parent.parent.parent.GetComponent<ItemMenu>().MenuName;
 
 		menu = new Menu();
-		menu.MenuName = SentenceActionsMenu.GetComponent<ItemMenu>().MenuName;
 		menu.MenuObject = SentenceActionsMenu.transform;
-
-		index = 0;
 
 		foreach (Menu item in MenuSystem.menus) {
 			if (item.MenuObject == menu.MenuObject) {
-				index = MenuSystem.menus.IndexOf(item);
+				item.MenuName = transform.parent.parent.parent.parent.parent.GetComponent<ItemMenu>().MenuName.Replace("Sentences", "/") + transform.GetSiblingIndex() + "SentenceActions";
+				break;
 			}
 		}
 
-		MenuSystem.menus[index].MenuName = MenuSystem.currentlyLodadedMenu.Replace("Sentences", "/") + transform.GetSiblingIndex() + "SentenceActions";
-
-		SentenceActionsMenu.GetComponent<ItemMenu>().MenuName = MenuSystem.currentlyLodadedMenu.Replace("Sentences", "/") + transform.GetSiblingIndex() + "SentenceActions";
-		SentenceActionsMenu.name = MenuSystem.currentlyLodadedMenu.Replace("Sentences", "/") + transform.GetSiblingIndex() + "SentenceActions";
+		SentenceActionsMenu.GetComponent<ItemMenu>().MenuName = transform.parent.parent.parent.parent.parent.GetComponent<ItemMenu>().MenuName.Replace("Sentences", "/") + transform.GetSiblingIndex() + "SentenceActions";
+		SentenceActionsMenu.name = transform.parent.parent.parent.parent.parent.GetComponent<ItemMenu>().MenuName.Replace("Sentences", "/") + transform.GetSiblingIndex() + "SentenceActions";
 		SentenceActionsMenu.GetComponent<ItemMenu>().title.text = "Sentence data: Sentence Actions(" + MenuSystem.currentlyLodadedMenu.Replace("Sentences", "/Sentence Index - ") + transform.GetSiblingIndex() + ")";
 
-		SentenceActionsMenu.GetComponent<ItemMenu>().ParentMenu = MenuSystem.currentlyLodadedMenu;
-	}
-
-	public List<string> GetCharacterList() {
-		List<string> characters = new List<string>();
-
-		JsonFileIO fileIO = FindObjectOfType<JsonFileIO>();
-
-		foreach(Transform temp in fileIO.CharacterMenu.ItemList) {
-			temp.TryGetComponent(out Character character);
-
-			if(character == null) { continue; }
-			characters.Add(character.CharacterName);
-		}
-
-		return characters;
-	}
-
-	public List<string> GetArtworkList(int Type) {
-		List<string> artworks = new List<string>();
-
-		JsonFileIO fileIO = FindObjectOfType<JsonFileIO>();
-
-		foreach (Transform temp in fileIO.ArtworkMenu.ItemList) {
-			temp.TryGetComponent(out Artwork artwork);
-
-			if (artwork == null) { continue; }
-			if(artwork.ArtworkType == Type)
-				artworks.Add(artwork.ArtworkName);
-			Debug.Log(artwork.ArtworkName);
-		}
-
-		return artworks;
+		SentenceActionsMenu.GetComponent<ItemMenu>().ParentMenu = transform.parent.parent.parent.parent.parent.GetComponent<ItemMenu>().MenuName;
 	}
 
 	public void RemoveItem() {
 		transform.SetAsLastSibling();
-		foreach(Transform sentence in transform.parent) {
+
+		foreach (Transform sentence in transform.parent) {
 			sentence.TryGetComponent(out Sentence sen);
-			if(sen != this && sen != null) {
+			if (sen != null && sen != this) {
+				Debug.Log(sen.Text);
 				sen.UpdateMenuNames();
+				continue;
 			}
+			sentence.SetAsLastSibling();
 		}
 
-		Menu menu = new Menu();
-		menu.MenuName = ChoicesMenu.GetComponent<ItemMenu>().MenuName;
-		menu.MenuObject = ChoicesMenu.transform;
+		UpdateMenuNames();
 
-		int index = 0;
-
-		foreach (Menu item in MenuSystem.menus) {
-			if (item.MenuObject == menu.MenuObject) {
-				index = MenuSystem.menus.IndexOf(item);
+		foreach (Menu i in MenuSystem.menus) {
+			if (i.MenuObject.gameObject == ChoicesMenu) {
+				int index = MenuSystem.menus.IndexOf(i);
+				Debug.Log(index + " " + MenuSystem.menus[index].MenuName);
+				this.MenuSystem.menus.Remove(i);
+				break;
 			}
 		}
-
-		MenuSystem.menus.Remove(MenuSystem.menus[index]);
 
 		Destroy(ChoicesMenu);
 
-		menu = new Menu();
-
-		menu.MenuName = SentenceActionsMenu.GetComponent<ItemMenu>().MenuName;
-		menu.MenuObject = SentenceActionsMenu.transform;
-
-		index = 0;
-
-		foreach (Menu item in MenuSystem.menus) {
-			if (item.MenuObject == menu.MenuObject) {
-				index = MenuSystem.menus.IndexOf(item);
+		foreach (Menu i in MenuSystem.menus) {
+			if (i.MenuObject == SentenceActionsMenu.transform) {
+				int index = MenuSystem.menus.IndexOf(i);
+				Debug.Log(index + " " + MenuSystem.menus[index].MenuName);
+				this.MenuSystem.menus.Remove(i);
+				break;
 			}
 		}
 
-		MenuSystem.menus.Remove(MenuSystem.menus[index]);
+		try {
+			Debug.Log(SentenceActionsMenu.name);
+			Destroy(SentenceActionsMenu);
+			Debug.Log(SentenceActionsMenu.name);
+		}
+		catch {
+			Debug.LogError("Can't delete");
+		}
 
-		Destroy(SentenceActionsMenu);
-		Destroy(this.gameObject);
+
+		Destroy(gameObject);
 	}
 }

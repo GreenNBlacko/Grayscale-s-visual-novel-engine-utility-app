@@ -7233,6 +7233,7 @@ GameObject:
   - component: {fileID: 1186286043}
   - component: {fileID: 1186286042}
   - component: {fileID: 1186286041}
+  - component: {fileID: 1186286045}
   m_Layer: 5
   m_Name: AddBGM
   m_TagString: Untagged
@@ -7317,7 +7318,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1186286043}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1186286045}
+        m_TargetAssemblyTypeName: AddMenuItem, Assembly-CSharp
+        m_MethodName: AddItem
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1186286043
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7356,6 +7369,20 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1186286039}
   m_CullTransparentMesh: 0
+--- !u!114 &1186286045
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1186286039}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5fca1ffe6a8970e40857f1b9a0cab336, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ItemList: {fileID: 567340305}
+  prefab: {fileID: 7666723697021157162, guid: fb98338cb6392ad4db11125374503d07, type: 3}
 --- !u!1 &1198551976
 GameObject:
   m_ObjectHideFlags: 0
@@ -7946,15 +7973,40 @@ MonoBehaviour:
   ChapterMenu: {fileID: 696918314}
   CharacterMenu: {fileID: 1788783837}
   ArtworkMenu: {fileID: 139454312}
-  BGMMenu: {fileID: 0}
+  BGMMenu: {fileID: 2123822341}
   ChapterPrefab: {fileID: 6847807749523562851, guid: 68e805f468431dd49bc9bb246129fd50,
     type: 3}
   SentencePrefab: {fileID: 168173101174775985, guid: 3d0687f4c1eefbb459f5896fdf32c2c4,
     type: 3}
+  ChoicePrefab: {fileID: 0}
+  SentenceActionPrefab: {fileID: 0}
   CharacterPrefab: {fileID: 5435713460552880534, guid: 75a07af4b14d63549b49c3d39850b48c,
     type: 3}
   sentenceData:
-    chapters: []
+    chapters:
+    - ChapterName: 
+      NextChapter: 0
+      sentences:
+      - Name: 
+        Text: 
+        ArtworkType: 0
+        BG_ID: 0
+        CG_ID: 0
+        Choice: 0
+        choiceOptions: []
+        Voiced: 0
+        VoiceClip: 
+        sentenceActions: []
+      - Name: 
+        Text: 
+        ArtworkType: 0
+        BG_ID: 0
+        CG_ID: 0
+        Choice: 0
+        choiceOptions: []
+        Voiced: 0
+        VoiceClip: 
+        sentenceActions: []
     characterData: []
     artworkData: []
     bgmData: []
@@ -11388,6 +11440,11 @@ PrefabInstance:
       propertyPath: m_HideMobileInput
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 6914850920440042673, guid: fb98338cb6392ad4db11125374503d07,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 1742553375}
     - target: {fileID: 7666723697021157162, guid: fb98338cb6392ad4db11125374503d07,
         type: 3}
       propertyPath: m_Name
@@ -11531,6 +11588,18 @@ RectTransform:
     type: 3}
   m_PrefabInstance: {fileID: 1742553373}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1742553375 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 3997292653460292314, guid: fb98338cb6392ad4db11125374503d07,
+    type: 3}
+  m_PrefabInstance: {fileID: 1742553373}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 547898f49b18d974c899a281a31d4235, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &1746160876
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -13185,7 +13254,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1929409988}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1343833526}
+        m_TargetAssemblyTypeName: MenuSystem, Assembly-CSharp
+        m_MethodName: LoadMenu
+        m_Mode: 5
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: EditFileScreen
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1929409988
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -15091,6 +15172,7 @@ GameObject:
   - component: {fileID: 2123822339}
   - component: {fileID: 2123822338}
   - component: {fileID: 2123822337}
+  - component: {fileID: 2123822341}
   m_Layer: 5
   m_Name: BGMScreen
   m_TagString: Untagged
@@ -15178,6 +15260,22 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0}
+--- !u!114 &2123822341
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2123822336}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 45b88be4b2301564980deb09c1f67c94, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  title: {fileID: 918083794}
+  MenuName: BGMScreen
+  ItemList: {fileID: 567340305}
+  ParentMenu: EditFileScreen
 --- !u!1 &2131651016
 GameObject:
   m_ObjectHideFlags: 0

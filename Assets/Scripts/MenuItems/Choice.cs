@@ -8,7 +8,10 @@ public class Choice : MonoBehaviour {
 	public TMP_InputField ChoiceTextInput;
 	public TMP_Dropdown ChoiceChapterInput;
 
+	public MenuSystem menuSystem;
+
 	private void Start() {
+		menuSystem = FindObjectOfType<MenuSystem>();
 		SetValue(ChoiceTextInput);
 		SetValue(ChoiceChapterInput);
 	}
@@ -22,6 +25,6 @@ public class Choice : MonoBehaviour {
 	}
 
 	public void RemoveItem() {
-		Destroy(this.gameObject);
+		Destroy(gameObject);
 	}
 }

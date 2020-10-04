@@ -34,7 +34,10 @@ public class SentenceAction : MonoBehaviour {
 	public TMP_Dropdown BGMNameDropdown;
 	public TMP_InputField DelayInput;
 
+	public MenuSystem menuSystem;
+
 	void Start() {
+		menuSystem = FindObjectOfType<MenuSystem>();
 		SetValues();
 	}
 

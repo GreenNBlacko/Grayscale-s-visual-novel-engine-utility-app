@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -16,15 +17,20 @@ public class MenuSystem : MonoBehaviour {
 
 	void Start() {
 		FileIO = FindObjectOfType<JsonFileIO>();
-		if(StartMenu == "") {
+		if (StartMenu == "") {
 			LoadMenu(menus[0].MenuName);
 		} else {
 			LoadMenu(StartMenu);
 		}
 	}
 
+	void Update() {
+
+	}
+
 	public void LoadMenu(string MenuName) {
 		foreach (Menu i in menus) {
+			if (i.MenuObject == null) { continue; }
 			if (i.MenuName == MenuName) {
 				i.MenuObject.gameObject.SetActive(true);
 			} else {
@@ -35,7 +41,7 @@ public class MenuSystem : MonoBehaviour {
 	}
 
 	public void LoadSentenceData(string MenuName) {
-		if(FileIO.IsFileLoaded()) {
+		if (FileIO.IsFileLoaded()) {
 			LoadMenu(MenuName);
 			return;
 		}
@@ -45,7 +51,7 @@ public class MenuSystem : MonoBehaviour {
 	public void Exit() {
 		Application.Quit();
 	}
-} 
+}
 
 [Serializable]
 public class Menu {
