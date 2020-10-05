@@ -5,9 +5,11 @@ using UnityEngine.UI;
 
 public class Character : MonoBehaviour {
 	public GameObject ColorMenuPrefab;
+	public GameObject CharacterStateMenuPrefab;
 
 	private List<GameObject> ColorMenus = new List<GameObject>();
 	private List<ColorMenu> Colors = new List<ColorMenu>();
+	private GameObject CharacterStateMenu;
 
 	public string CharacterName;
 	public bool UseSeperateColors;
@@ -29,10 +31,29 @@ public class Character : MonoBehaviour {
 	public Image[] CharacterColorDisplays = new Image[6];
 
 	public GameObject CharacterColorList;
+	private MenuSystem menuSystem;
 
 	void Start() {
+		menuSystem = FindObjectOfType<MenuSystem>();
+		if(CharacterStateMenu == null) { CreateCharacterStatesMenu(menuSystem.currentlyLodadedMenu); }
 		if (CharacterColorList != null) { SetValues(); return; }
 		CreateColorMenus();
+	}
+
+	public void CreateCharacterStatesMenu(string ParentMenu) {
+		menuSystem = FindObjectOfType<MenuSystem>();
+
+		CharacterStateMenu = Instantiate(CharacterStateMenuPrefab);
+
+		CharacterStateMenu.name = CharacterName + "CharacterStates";
+
+		CharacterStateMenu.GetComponent<ItemMenu>().title.text = "Character States(" + CharacterName + ")";
+		CharacterStateMenu.GetComponent<ItemMenu>().ParentMenu = ParentMenu;
+		CharacterStateMenu.GetComponent<ItemMenu>().MenuName = CharacterName + "CharacterStates";
+
+		menuSystem.menus.Add(new Menu() { MenuName = CharacterStateMenu.name, MenuObject = CharacterStateMenu.transform });
+
+		CharacterStateMenu.SetActive(false);
 	}
 
 	public void CreateColorMenus(bool overrideColors = false) {
@@ -135,6 +156,13 @@ public class Character : MonoBehaviour {
 		Colors[4].Title.text = "Sentence data: Text Gradient Color(" + CharacterName + ")";
 		Colors[5].Title.text = "Sentence data: Gradient Color(" + CharacterName + ")";
 
+		if (CharacterStateMenu != null) {
+			CharacterStateMenu.name = CharacterName + "CharacterStates";
+
+			CharacterStateMenu.GetComponent<ItemMenu>().title.text = "Character States(" + CharacterName + ")";
+			CharacterStateMenu.GetComponent<ItemMenu>().MenuName = CharacterName + "CharacterStates";
+		}
+
 		if (GradientType == 0) {
 			UseSeperateGradientColorsToggle.transform.parent.gameObject.SetActive(false);
 			CharacterColorObjects[3].SetActive(false);
@@ -198,8 +226,29 @@ public class Character : MonoBehaviour {
 		ColorMenus[index].SetActive(false);
 	}
 
+	public ItemMenu GetCharacterStatesMenu() {
+		if(CharacterStateMenu == null) { return CharacterStateMenuPrefab.GetComponent<ItemMenu>(); }
+		return CharacterStateMenu.GetComponent<ItemMenu>();
+	}
+
+	public void LoadCharacterStatesMenu() {
+		menuSystem.LoadMenu(CharacterStateMenu.name);
+	}
+
 	public void RemoveItem() {
 		Destroy(CharacterColorList);
+
+		menuSystem = FindObjectOfType<MenuSystem>();
+
+		if(CharacterStateMenu == null) { Destroy(gameObject); return; }
+		foreach(Menu menu in menuSystem.menus) {
+			if(menu.MenuObject == CharacterStateMenu.transform) {
+				menuSystem.menus.Remove(menu);
+				Destroy(CharacterStateMenu);
+				break;
+			}
+		}
+
 		Destroy(gameObject);
 	}
 }

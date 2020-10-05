@@ -1,10 +1,9 @@
+using JetBrains.Annotations;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using TMPro;
-using UnityEditor;
 using UnityEngine;
-using UnityEngine.Events;
 
 public class JsonFileIO : MonoBehaviour {
 	public TMP_Text titleText;
@@ -32,6 +31,9 @@ public class JsonFileIO : MonoBehaviour {
 	public GameObject ChoicePrefab;
 	public GameObject SentenceActionPrefab;
 	public GameObject CharacterPrefab;
+	public GameObject CharacterStatePrefab;
+	public GameObject ArtworkPrefab;
+	public GameObject BGMPrefab;
 
 	[Space(15)]
 	public SentencesData sentenceData;
@@ -126,113 +128,22 @@ public class JsonFileIO : MonoBehaviour {
 			chapter.RemoveItem();
 		}
 
-		foreach (ChapterData chapter in data.chapters) {
-			GameObject chapterObject = Instantiate(ChapterPrefab, ChapterMenu.ItemList);
-			chapterObject.name = chapter.ChapterName;
-
-			TMP_InputField.OnChangeEvent onValueChanged = chapterObject.GetComponent<Chapter>().ChapterNameInput.onValueChanged;
-			TMP_InputField.SubmitEvent onSubmitEvent = chapterObject.GetComponent<Chapter>().ChapterNameInput.onEndEdit;
-
-			chapterObject.GetComponent<Chapter>().ChapterNameInput.onValueChanged = new TMP_InputField.OnChangeEvent();
-			chapterObject.GetComponent<Chapter>().ChapterNameInput.onEndEdit = new TMP_InputField.SubmitEvent();
-
-			chapterObject.GetComponent<Chapter>().ChapterNameInput.text = chapter.ChapterName;
-			chapterObject.GetComponent<Chapter>().NextChapter = chapter.NextChapter;
-
-			chapterObject.GetComponent<Chapter>().ChapterName = chapter.ChapterName;
-
-			chapterObject.GetComponent<Chapter>().ChapterNameInput.onValueChanged = onValueChanged;
-			chapterObject.GetComponent<Chapter>().ChapterNameInput.onEndEdit = onSubmitEvent;
-
-			chapterObject.GetComponent<Chapter>().CreateSentencesMenu(ChapterMenu.MenuName);
-
-			foreach (SentenceData sentence in chapter.sentences) {
-				GameObject sentencesObject = Instantiate(SentencePrefab, chapterObject.GetComponent<Chapter>().GetSentencesMenu().ItemList);
-
-				sentencesObject.TryGetComponent(out Sentence tempSentence);
-
-				tempSentence.SentenceText.text = sentence.Text;
-				tempSentence.ArtworkTypeDropDown.value = sentence.ArtworkType;
-				if (sentence.ArtworkType == 1)
-					tempSentence.ArtworkNameDropDown.value = sentence.BG_ID;
-				else if (sentence.ArtworkType == 2)
-					tempSentence.ArtworkNameDropDown.value = sentence.CG_ID;
-				tempSentence.ChoiceToggle.isOn = sentence.Choice;
-				tempSentence.VoicedToggle.isOn = sentence.Voiced;
-				if (sentence.Voiced)
-					tempSentence.VAClipInput.text = sentence.VoiceClip;
-
-				chapterObject.GetComponent<Chapter>().CreateSentenceSubmenus();
-
-				foreach (ChoiceOptionData choice in sentence.choiceOptions) {
-					GameObject choiceObject = Instantiate(ChoicePrefab, tempSentence.ChoicesMenu.GetComponent<ItemMenu>().ItemList);
-
-					choiceObject.TryGetComponent(out Choice tempChoice);
-
-					List<string> chapterNames = ReturnAllChapters();
-					chapterNames.RemoveAt(0);
-
-					tempChoice.ChoiceChapterInput.options = new List<TMP_Dropdown.OptionData>();
-					foreach (string chapterName in chapterNames) {
-						TMP_Dropdown.OptionData name = new TMP_Dropdown.OptionData() { text = chapterName };
-						tempChoice.ChoiceChapterInput.options.Add(name);
-					}
-
-					tempChoice.ChoiceChapterInput.value = choice.OptionID;
-					tempChoice.ChoiceTextInput.text = choice.OptionText;
-				}
-
-				foreach (SentenceActionData sentenceAction in sentence.sentenceActions) {
-					GameObject sentenceActionsObject = Instantiate(SentenceActionPrefab, tempSentence.SentenceActionsMenu.GetComponent<ItemMenu>().ItemList);
-
-					sentenceActionsObject.TryGetComponent(out SentenceAction tempSentenceAction);
-
-					tempSentenceAction.ActionTypeDropdown.value = sentenceAction.ActionType;
-
-					List<string> characterNames = GetCharacterList();
-
-					tempSentenceAction.CharacterNameDropdown.options = new List<TMP_Dropdown.OptionData>();
-					foreach (string characterName in characterNames) {
-						TMP_Dropdown.OptionData name = new TMP_Dropdown.OptionData() { text = characterName };
-						tempSentenceAction.CharacterNameDropdown.options.Add(name);
-					}
-
-					tempSentenceAction.CharacterNameDropdown.value = ReturnCharacterIndex(sentenceAction.CharacterName);
-
-					tempSentenceAction.TransitionToggle.isOn = sentenceAction.Transition;
-					tempSentenceAction.StartingPositionDropdown.value = sentenceAction.startingPosition;
-					tempSentenceAction.StartingPositionInput[0].text = sentenceAction.customStartingPosition.x.ToString();
-					tempSentenceAction.StartingPositionInput[1].text = sentenceAction.customStartingPosition.y.ToString();
-					tempSentenceAction.PositionInput[0].text = sentenceAction.position.x.ToString();
-					tempSentenceAction.PositionInput[0].text = sentenceAction.position.y.ToString();
-					tempSentenceAction.TransitionSpeedSlider.value = sentenceAction.TransitionSpeed;
-					tempSentenceAction.FadeInToggle.isOn = sentenceAction.FadeIn;
-					tempSentenceAction.FadeOutToggle.isOn = sentenceAction.FadeOut;
-					tempSentenceAction.FadeSpeedSlider.value = sentenceAction.FadeSpeed;
-
-					tempSentenceAction.BGMNameDropdown.options = new List<TMP_Dropdown.OptionData>();
-
-					List<string> BGMNames = GetBGMList();
-
-					tempSentenceAction.BGMNameDropdown.options = new List<TMP_Dropdown.OptionData>();
-					foreach (string BGMName in BGMNames) {
-						TMP_Dropdown.OptionData name = new TMP_Dropdown.OptionData() { text = BGMName };
-						tempSentenceAction.CharacterNameDropdown.options.Add(name);
-					}
-
-					tempSentenceAction.BGMNameDropdown.value = ReturnBGMIndex(sentenceAction.BGMName);
-
-					tempSentenceAction.DelayInput.text = sentenceAction.Delay.ToString();
-				}
-			}
-
-			chapterObject.GetComponent<Chapter>().UpdateMenuNames(ChapterMenu.MenuName);
-		}
-
 		foreach (Transform obj in CharacterMenu.ItemList) {
 			obj.TryGetComponent(out Character character);
 			if (character == null) { continue; }
 			character.RemoveItem();
+		}
+
+		foreach (Transform obj in ArtworkMenu.ItemList) {
+			obj.TryGetComponent(out Artwork artwork);
+			if (artwork == null) { continue; }
+			artwork.RemoveItem();
+		}
+
+		foreach (Transform obj in BGMMenu.ItemList) {
+			obj.TryGetComponent(out BGM bgm);
+			if (bgm == null) { continue; }
+			bgm.RemoveItem();
 		}
 
 		foreach (CharacterData character in data.characterData) {
@@ -259,12 +170,214 @@ public class JsonFileIO : MonoBehaviour {
 			characterObject.GetComponent<Character>().UseSeperateColorsToggle.isOn = character.useSeperateColors;
 			characterObject.GetComponent<Character>().GradientTypeDropdown.value = character.gradientType;
 			characterObject.GetComponent<Character>().UseSeperateGradientColorsToggle.isOn = character.useSeperateGradientColors;
+
+			characterObject.GetComponent<Character>().CreateCharacterStatesMenu(CharacterMenu.MenuName);
+
+			foreach (CharacterStateData characterState in character.characterStates) {
+				GameObject characterStateObject = Instantiate(CharacterStatePrefab, characterObject.GetComponent<Character>().GetCharacterStatesMenu().ItemList);
+
+				characterStateObject.GetComponent<CharacterState>().StateNameInput.text = characterState.StateName;
+				characterStateObject.GetComponent<CharacterState>().StateTypeDropdown.value = characterState.StateType;
+				characterStateObject.GetComponent<CharacterState>().BaseLayerInput.text = characterState.BaseLayerImagePath;
+				characterStateObject.GetComponent<CharacterState>().ExpressionLayerInput.text = characterState.ExpressionLayerImagePath;
+
+				characterStateObject.GetComponent<CharacterState>().SetValues();
+			}
+		}
+
+		foreach(ArtworkData artwork in data.artworkData) {
+			GameObject artworkObject = Instantiate(ArtworkPrefab, ArtworkMenu.ItemList);
+
+			artworkObject.GetComponent<Artwork>().ArtworkNameInput.text = artwork.ArtworkName;
+			artworkObject.GetComponent<Artwork>().ArtworkTypeDropdown.value = artwork.ArtworkType;
+			artworkObject.GetComponent<Artwork>().ArtworkPathInput.text = artwork.ArtworkPath;
+
+			artworkObject.GetComponent<Artwork>().SetValues();
+		}
+
+		foreach (BGMData bgm in data.bgmData) {
+			GameObject bgmObject = Instantiate(BGMPrefab, BGMMenu.ItemList);
+
+			bgmObject.GetComponent<BGM>().BGMNameInput.text = bgm.BGMName;
+			bgmObject.GetComponent<BGM>().BGMPathInput.text = bgm.BGMPath;
+
+			bgmObject.GetComponent<BGM>().SetValues();
+		}
+
+		foreach (ChapterData chapter in data.chapters) {
+			GameObject chapterObject = Instantiate(ChapterPrefab, ChapterMenu.ItemList);
+			chapterObject.name = chapter.ChapterName;
+
+			TMP_InputField.OnChangeEvent onValueChanged = chapterObject.GetComponent<Chapter>().ChapterNameInput.onValueChanged;
+			TMP_InputField.SubmitEvent onSubmitEvent = chapterObject.GetComponent<Chapter>().ChapterNameInput.onEndEdit;
+
+			chapterObject.GetComponent<Chapter>().ChapterNameInput.onValueChanged = new TMP_InputField.OnChangeEvent();
+			chapterObject.GetComponent<Chapter>().ChapterNameInput.onEndEdit = new TMP_InputField.SubmitEvent();
+
+			chapterObject.GetComponent<Chapter>().ChapterNameInput.text = chapter.ChapterName;
+			chapterObject.GetComponent<Chapter>().NextChapter = chapter.NextChapter;
+
+			chapterObject.GetComponent<Chapter>().ChapterName = chapter.ChapterName;
+
+			chapterObject.GetComponent<Chapter>().ChapterNameInput.onValueChanged = onValueChanged;
+			chapterObject.GetComponent<Chapter>().ChapterNameInput.onEndEdit = onSubmitEvent;
+
+			chapterObject.GetComponent<Chapter>().CreateSentencesMenu(ChapterMenu.MenuName);
+
+			foreach (SentenceData sentence in chapter.sentences) {
+				GameObject sentencesObject = Instantiate(SentencePrefab, chapterObject.GetComponent<Chapter>().GetSentencesMenu().ItemList);
+
+				sentencesObject.TryGetComponent(out Sentence tempSentence);
+
+				List<string> characterNames = GetCharacterList();
+
+				tempSentence.NameDropDown.options.Clear();
+				foreach (string characterName in characterNames) {
+					TMP_Dropdown.OptionData name = new TMP_Dropdown.OptionData() { text = characterName };
+					tempSentence.NameDropDown.options.Add(name);
+				}
+
+				tempSentence.NameDropDown.value = ReturnCharacterIndex(sentence.Name);
+
+				tempSentence.SentenceText.text = sentence.Text;
+				tempSentence.ArtworkTypeDropDown.value = sentence.ArtworkType;
+
+				tempSentence.ArtworkNameDropDown.options.Clear();
+
+				List<string> ArtworkList = GetArtworkList(sentence.ArtworkType - 1);
+
+				foreach (string art in ArtworkList) {
+					TMP_Dropdown.OptionData optionData = new TMP_Dropdown.OptionData();
+
+					optionData.text = art;
+
+					tempSentence.ArtworkNameDropDown.options.Add(optionData);
+				}
+
+				TMP_Dropdown.DropdownEvent tempAction = tempSentence.ArtworkNameDropDown.onValueChanged;
+				tempSentence.ArtworkNameDropDown.onValueChanged = new TMP_Dropdown.DropdownEvent();
+
+				if (sentence.ArtworkType == 1)
+					tempSentence.ArtworkName = sentence.BG_ID;
+				else if (sentence.ArtworkType == 2) {
+					tempSentence.ArtworkName = sentence.CG_ID;
+				}
+
+				tempSentence.ArtworkNameDropDown.onValueChanged = tempAction;
+
+				tempSentence.ChoiceToggle.isOn = sentence.Choice;
+				tempSentence.VoicedToggle.isOn = sentence.Voiced;
+				if (sentence.Voiced)
+					tempSentence.VAClipInput.text = sentence.VoiceClip;
+
+				chapterObject.GetComponent<Chapter>().CreateSentenceSubmenus();
+
+				tempSentence.SetValues();
+
+				foreach (ChoiceOptionData choice in sentence.choiceOptions) {
+					GameObject choiceObject = Instantiate(ChoicePrefab, tempSentence.ChoicesMenu.GetComponent<ItemMenu>().ItemList);
+
+					choiceObject.TryGetComponent(out Choice tempChoice);
+
+					List<string> chapterNames = ReturnAllChapters();
+					chapterNames.RemoveAt(0);
+
+					tempChoice.ChoiceChapterInput.options.Clear();
+					foreach (string chapterName in chapterNames) {
+						TMP_Dropdown.OptionData name = new TMP_Dropdown.OptionData() { text = chapterName };
+						tempChoice.ChoiceChapterInput.options.Add(name);
+					}
+
+					TMP_Dropdown.DropdownEvent tmp = tempChoice.ChoiceChapterInput.onValueChanged;
+					tempChoice.ChoiceChapterInput.onValueChanged = new TMP_Dropdown.DropdownEvent();
+
+					tempChoice.ChoiceChapterInput.value = choice.OptionID;
+					tempChoice.ChoiceChapter = choice.OptionID;
+					tempChoice.ChoiceTextInput.text = choice.OptionText;
+
+					tempChoice.ChoiceChapterInput.onValueChanged = tmp;
+				}
+
+				foreach (SentenceActionData sentenceAction in sentence.sentenceActions) {
+					GameObject sentenceActionsObject = Instantiate(SentenceActionPrefab, tempSentence.SentenceActionsMenu.GetComponent<ItemMenu>().ItemList);
+
+					sentenceActionsObject.TryGetComponent(out SentenceAction tempSentenceAction);
+
+					tempSentenceAction.ActionTypeDropdown.value = sentenceAction.ActionType;
+
+					characterNames = GetCharacterList();
+
+					tempSentenceAction.CharacterNameDropdown.options.Clear();
+					foreach (string characterName in characterNames) {
+						TMP_Dropdown.OptionData name = new TMP_Dropdown.OptionData() { text = characterName };
+						tempSentenceAction.CharacterNameDropdown.options.Add(name);
+					}
+
+					tempSentenceAction.CharacterNameDropdown.value = ReturnCharacterIndex(sentenceAction.CharacterName);
+
+					List<string> characterStateNames = GetCharacterStates(sentenceAction.CharacterName);
+
+					tempSentenceAction.StateNameDropdown.options.Clear();
+					foreach (string characterState in characterStateNames) {
+						TMP_Dropdown.OptionData name = new TMP_Dropdown.OptionData() { text = characterState };
+						tempSentenceAction.StateNameDropdown.options.Add(name);
+					}
+
+					tempSentenceAction.StateNameDropdown.value = ReturnCharacterStateIndex(sentenceAction.CharacterName, sentenceAction.StateName);
+
+					tempSentenceAction.TransitionToggle.isOn = sentenceAction.Transition;
+					tempSentenceAction.StartingPositionDropdown.value = sentenceAction.startingPosition;
+					tempSentenceAction.StartingPositionInput[0].text = sentenceAction.customStartingPosition.x.ToString();
+					tempSentenceAction.StartingPositionInput[1].text = sentenceAction.customStartingPosition.y.ToString();
+					tempSentenceAction.PositionInput[0].text = sentenceAction.position.x.ToString();
+					tempSentenceAction.PositionInput[0].text = sentenceAction.position.y.ToString();
+					tempSentenceAction.TransitionSpeedSlider.value = sentenceAction.TransitionSpeed;
+					tempSentenceAction.FadeInToggle.isOn = sentenceAction.FadeIn;
+					tempSentenceAction.FadeOutToggle.isOn = sentenceAction.FadeOut;
+					tempSentenceAction.FadeSpeedSlider.value = sentenceAction.FadeSpeed;
+
+					tempSentenceAction.BGMNameDropdown.options.Clear();
+
+					List<string> BGMNames = GetBGMList();
+
+					tempSentenceAction.BGMNameDropdown.options.Clear();
+					foreach (string BGMName in BGMNames) {
+						TMP_Dropdown.OptionData name = new TMP_Dropdown.OptionData() { text = BGMName };
+						tempSentenceAction.CharacterNameDropdown.options.Add(name);
+					}
+
+					tempSentenceAction.BGMName = ReturnBGMIndex(sentenceAction.BGMName);
+
+					tempSentenceAction.DelayInput.text = sentenceAction.Delay.ToString();
+
+					tempSentenceAction.SetValues();
+				}
+			}
+
+			chapterObject.GetComponent<Chapter>().UpdateMenuNames(ChapterMenu.MenuName);
 		}
 
 		foreach (Transform obj in ChapterMenu.ItemList) {
 			obj.TryGetComponent(out Chapter chapter);
 			if (chapter == null) { continue; }
 			chapter.SetValues();
+			foreach (Transform sentenceObj in chapter.GetSentencesMenu().ItemList) {
+				if (sentenceObj.TryGetComponent(out Sentence sentence)) {
+					sentence.SetValues();
+					foreach (Transform choiceObj in sentence.ChoicesMenu.GetComponent<ItemMenu>().ItemList) {
+						if (choiceObj.TryGetComponent(out Choice choice)) {
+							choice.SetValue(choice.ChoiceTextInput);
+							choice.SetValue(choice.ChoiceChapterInput);
+						}
+					}
+
+					foreach (Transform sentenceActionObj in sentence.SentenceActionsMenu.GetComponent<ItemMenu>().ItemList) {
+						if (sentenceActionObj.TryGetComponent(out SentenceAction sentenceAction)) {
+							sentenceAction.SetValues();
+						}
+					}
+				}
+			}
 		}
 	}
 
@@ -323,11 +436,15 @@ public class JsonFileIO : MonoBehaviour {
 		SentencesData data = new SentencesData();
 		List<ChapterData> chapters = new List<ChapterData>();
 		List<CharacterData> characters = new List<CharacterData>();
+		List<ArtworkData> artworks = new List<ArtworkData>();
+		List<BGMData> BGMs = new List<BGMData>();
 
 		foreach (Transform ch in ChapterMenu.ItemList) {
 			ch.TryGetComponent(out Chapter chapter);
 
 			if (chapter != null) {
+				chapter.SetValue(chapter.ChapterNameInput);
+				chapter.SetValue(chapter.NextChapterList);
 				ChapterData tempChapter = new ChapterData();
 
 				List<SentenceData> sentences = new List<SentenceData>();
@@ -339,6 +456,7 @@ public class JsonFileIO : MonoBehaviour {
 					sen.TryGetComponent(out Sentence sentence);
 
 					if (sentence != null) {
+						sentence.SetValues();
 						SentenceData tempSentence = new SentenceData();
 
 						List<ChoiceOptionData> choices = new List<ChoiceOptionData>();
@@ -358,8 +476,10 @@ public class JsonFileIO : MonoBehaviour {
 							tempSentence.VoiceClip = sentence.VAClipPath;
 						}
 
-						foreach (Transform choic in sentence.ChoicesMenu.transform) {
+						foreach (Transform choic in sentence.ChoicesMenu.GetComponent<ItemMenu>().ItemList) {
 							if (choic.TryGetComponent(out Choice choice)) {
+								choice.SetValue(choice.ChoiceTextInput);
+								choice.SetValue(choice.ChoiceChapterInput);
 								ChoiceOptionData tempChoice = new ChoiceOptionData();
 
 								tempChoice.OptionID = choice.ChoiceChapter;
@@ -369,8 +489,9 @@ public class JsonFileIO : MonoBehaviour {
 							}
 						}
 
-						foreach (Transform sentAction in sentence.SentenceActionsMenu.transform) {
+						foreach (Transform sentAction in sentence.SentenceActionsMenu.GetComponent<ItemMenu>().ItemList) {
 							if (sentAction.TryGetComponent(out SentenceAction sentenceAction)) {
+								sentenceAction.SetValues();
 								SentenceActionData tempSentenceAction = new SentenceActionData();
 
 								tempSentenceAction.ActionType = sentenceAction.ActionType;
@@ -410,6 +531,23 @@ public class JsonFileIO : MonoBehaviour {
 
 			CharacterData tempCharacter = new CharacterData();
 
+			List<CharacterStateData> characterStates = new List<CharacterStateData>();
+
+			foreach (Transform characState in character.GetCharacterStatesMenu().ItemList) {
+				if (characState.TryGetComponent(out CharacterState characterState)) {
+					CharacterStateData tempCharacterState = new CharacterStateData();
+
+					tempCharacterState.StateName = characterState.StateName;
+					tempCharacterState.StateType = characterState.StateType;
+					tempCharacterState.BaseLayerImagePath = characterState.BaseLayerPath;
+					tempCharacterState.ExpressionLayerImagePath = characterState.ExpressionLayerPath;
+
+					characterStates.Add(tempCharacterState);
+				}
+			}
+
+			tempCharacter.characterStates = characterStates.ToArray();
+
 			tempCharacter.useSeperateColors = character.UseSeperateColors;
 			tempCharacter.gradientType = character.GradientType;
 			tempCharacter.useSeperateGradientColors = character.UseSeperateGradientColors;
@@ -426,8 +564,33 @@ public class JsonFileIO : MonoBehaviour {
 			characters.Add(tempCharacter);
 		}
 
+		foreach(Transform art in ArtworkMenu.ItemList) {
+			if(art.TryGetComponent(out Artwork artwork)) {
+				ArtworkData tempArtwork = new ArtworkData();
+
+				tempArtwork.ArtworkName = artwork.ArtworkName;
+				tempArtwork.ArtworkType = artwork.ArtworkType;
+				tempArtwork.ArtworkPath = artwork.ArtworkPath;
+
+				artworks.Add(tempArtwork);
+			}
+		}
+
+		foreach(Transform bgmusic in BGMMenu.ItemList) {
+			if(bgmusic.TryGetComponent(out BGM bgm)) {
+				BGMData tempBGM = new BGMData();
+
+				tempBGM.BGMName = bgm.BGMName;
+				tempBGM.BGMPath = bgm.BGMPath;
+
+				BGMs.Add(tempBGM);
+			}
+		}
+
 		data.chapters = chapters.ToArray();
 		data.characterData = characters.ToArray();
+		data.artworkData = artworks.ToArray();
+		data.bgmData = BGMs.ToArray();
 
 		return data;
 	}
@@ -453,6 +616,12 @@ public class JsonFileIO : MonoBehaviour {
 
 			if (character == null) { continue; }
 			characters.Add(character.CharacterName);
+		}
+
+		foreach (string name in characters.ToArray()) {
+			if (name == "") {
+				characters.Remove(name);
+			}
 		}
 
 		return characters;
@@ -482,6 +651,44 @@ public class JsonFileIO : MonoBehaviour {
 		}
 
 		return BGMs;
+	}
+
+	public List<string> GetCharacterStates(string CharacterName) {
+		List<string> characterStates = new List<string>();
+
+		foreach (Transform obj in CharacterMenu.ItemList) {
+			if (obj.TryGetComponent(out Character character)) {
+				if (character.CharacterName == CharacterName) {
+					foreach (Transform charState in character.GetCharacterStatesMenu().ItemList) {
+						if (charState.TryGetComponent(out CharacterState characterState)) { characterStates.Add(characterState.StateName); }
+					}
+				}
+			}
+		}
+
+		return characterStates;
+	}
+
+	public int ReturnArtworkIndex(int ArtworkType, string ArtworkName) {
+		List<string> artworks = GetArtworkList(ArtworkType);
+
+		foreach(string artwork in artworks) { 
+			if(artwork == ArtworkName) { return artworks.IndexOf(artwork); }
+		}
+
+		return 0;
+	}
+
+	public int ReturnCharacterStateIndex(string CharacterName, string StateName) {
+		List<string> characterStates = GetCharacterStates(CharacterName);
+
+		int index = 0;
+
+		foreach (string state in characterStates) {
+			if (state == StateName) { index = characterStates.IndexOf(state); }
+		}
+
+		return index;
 	}
 
 	public int ReturnCharacterIndex(string CharacterName) {

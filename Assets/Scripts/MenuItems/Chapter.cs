@@ -173,7 +173,6 @@ public class Chapter : MonoBehaviour {
 		foreach (Transform sen in SentencesMenu.GetComponent<ItemMenu>().ItemList) {
 			if (!sen.TryGetComponent(out Sentence sentence)) { continue; }
 			sentence.RemoveItem();
-			Debug.Log(sentence.Text);
 		}
 
 		foreach (Menu item in MenuSystem.menus) {

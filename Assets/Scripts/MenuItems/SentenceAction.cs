@@ -2,6 +2,7 @@
 using System;
 using UnityEngine;
 using UnityEngine.UI;
+using System.Collections.Generic;
 
 public class SentenceAction : MonoBehaviour {
 	public int ActionType;
@@ -34,18 +35,111 @@ public class SentenceAction : MonoBehaviour {
 	public TMP_Dropdown BGMNameDropdown;
 	public TMP_InputField DelayInput;
 
+
+	private int currentActionType = 0;
 	public MenuSystem menuSystem;
+	private JsonFileIO fileIO;
 
 	void Start() {
 		menuSystem = FindObjectOfType<MenuSystem>();
+		fileIO = FindObjectOfType<JsonFileIO>();
+		Update();
 		SetValues();
 	}
 
+	private void Update() {
+		fileIO = FindObjectOfType<JsonFileIO>();
+		List<string> options = fileIO.GetCharacterList();
+
+		int tmp = CharacterNameDropdown.value;
+
+		if (options.Count != CharacterNameDropdown.options.Count) {
+			CharacterNameDropdown.ClearOptions();
+			CharacterNameDropdown.AddOptions(options);
+		}
+
+		for (int i = 0; i < CharacterNameDropdown.options.Count; i++) {
+			if (i >= options.Count) {
+				CharacterNameDropdown.ClearOptions();
+				CharacterNameDropdown.AddOptions(options);
+				break;
+			}
+			if (options[i] != CharacterNameDropdown.options[i].text) {
+				CharacterNameDropdown.ClearOptions();
+				CharacterNameDropdown.AddOptions(options);
+			}
+		}
+
+		CharacterNameDropdown.value = tmp;
+
+		if (CharacterNameDropdown.value >= CharacterNameDropdown.options.Count) {
+			CharacterNameDropdown.value = 0;
+		}
+
+		options = fileIO.GetCharacterStates(CharacterName);
+
+		tmp = fileIO.ReturnCharacterStateIndex(CharacterName, StateName);
+
+		if (options.Count != StateNameDropdown.options.Count) {
+			StateNameDropdown.ClearOptions();
+			StateNameDropdown.AddOptions(options);
+		}
+
+		for (int i = 0; i < StateNameDropdown.options.Count; i++) {
+			if (i >= options.Count) {
+				StateNameDropdown.ClearOptions();
+				StateNameDropdown.AddOptions(options);
+				break;
+			}
+			if (options[i] != StateNameDropdown.options[i].text) {
+				StateNameDropdown.ClearOptions();
+				StateNameDropdown.AddOptions(options);
+			}
+		}
+
+		StateNameDropdown.value = tmp;
+
+		if (StateNameDropdown.value >= StateNameDropdown.options.Count) {
+			StateNameDropdown.value = 0;
+		}
+
+		options = fileIO.GetBGMList();
+
+		tmp = BGMName;
+
+		if (options.Count != BGMNameDropdown.options.Count) {
+			BGMNameDropdown.ClearOptions();
+			BGMNameDropdown.AddOptions(options);
+		}
+
+		for (int i = 0; i < BGMNameDropdown.options.Count; i++) {
+			if (i >= options.Count) {
+				BGMNameDropdown.ClearOptions();
+				BGMNameDropdown.AddOptions(options);
+				break;
+			}
+			if (options[i] != BGMNameDropdown.options[i].text) {
+				BGMNameDropdown.ClearOptions();
+				BGMNameDropdown.AddOptions(options);
+			}
+		}
+
+		BGMNameDropdown.value = tmp;
+
+		if (BGMNameDropdown.value >= BGMNameDropdown.options.Count) {
+			BGMNameDropdown.value = 0;
+		}
+	}
+
 	public void SetValues() {
+		
 		ActionType = ActionTypeDropdown.value;
 		CharacterName = CharacterNameDropdown.captionText.text;
+
 		StateName = StateNameDropdown.captionText.text;
 		Transition = TransitionToggle.isOn;
+
+		Update();
 
 		ManageVariables(ActionTypeDropdown.value);
 
@@ -129,6 +223,7 @@ public class SentenceAction : MonoBehaviour {
 	}
 
 	public void ManageVariables(int actionType) {
+		if(currentActionType == actionType) { return; }
 		DisableVariables();
 		if (actionType == 0) {
 			CharacterNameDropdown.transform.parent.gameObject.SetActive(true);
@@ -156,6 +251,7 @@ public class SentenceAction : MonoBehaviour {
 		} else if (actionType == 5) {
 			DelayInput.transform.parent.gameObject.SetActive(true);
 		}
+		currentActionType = actionType;
 	}
 
 	public void DisableVariables() {

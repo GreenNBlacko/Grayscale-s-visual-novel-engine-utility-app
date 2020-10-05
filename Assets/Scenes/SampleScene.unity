@@ -7978,35 +7978,20 @@ MonoBehaviour:
     type: 3}
   SentencePrefab: {fileID: 168173101174775985, guid: 3d0687f4c1eefbb459f5896fdf32c2c4,
     type: 3}
-  ChoicePrefab: {fileID: 0}
-  SentenceActionPrefab: {fileID: 0}
+  ChoicePrefab: {fileID: 8880955186643764091, guid: 16e4826da9d6e2e47b9058b73f6066bf,
+    type: 3}
+  SentenceActionPrefab: {fileID: 7405920256807237852, guid: 8b5c0ff52c4af4742a5cbc980895d502,
+    type: 3}
   CharacterPrefab: {fileID: 5435713460552880534, guid: 75a07af4b14d63549b49c3d39850b48c,
     type: 3}
+  CharacterStatePrefab: {fileID: 7945442570464200315, guid: 04287c256dcb0ab46996116c6fdda9ed,
+    type: 3}
+  ArtworkPrefab: {fileID: 4452966681309811392, guid: 7c57b091c25e69f4da064204a882da18,
+    type: 3}
+  BGMPrefab: {fileID: 7666723697021157162, guid: fb98338cb6392ad4db11125374503d07,
+    type: 3}
   sentenceData:
-    chapters:
-    - ChapterName: 
-      NextChapter: 0
-      sentences:
-      - Name: 
-        Text: 
-        ArtworkType: 0
-        BG_ID: 0
-        CG_ID: 0
-        Choice: 0
-        choiceOptions: []
-        Voiced: 0
-        VoiceClip: 
-        sentenceActions: []
-      - Name: 
-        Text: 
-        ArtworkType: 0
-        BG_ID: 0
-        CG_ID: 0
-        Choice: 0
-        choiceOptions: []
-        Voiced: 0
-        VoiceClip: 
-        sentenceActions: []
+    chapters: []
     characterData: []
     artworkData: []
     bgmData: []
