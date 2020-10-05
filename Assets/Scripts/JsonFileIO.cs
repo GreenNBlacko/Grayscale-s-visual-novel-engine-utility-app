@@ -350,6 +350,8 @@ public class JsonFileIO : MonoBehaviour {
 
 					tempSentenceAction.DelayInput.text = sentenceAction.Delay.ToString();
 
+					tempSentenceAction.SetDropdownValues();
+
 					tempSentenceAction.SetValues();
 				}
 			}

@@ -152,6 +152,8 @@ public class Sentence : MonoBehaviour {
 	}
 
 	public void SetValues() {
+		Update();
+
 		CharacterName = NameDropDown.captionText.text;
 		Text = SentenceText.text;
 		ArtworkType = ArtworkTypeDropDown.value;
@@ -159,8 +161,6 @@ public class Sentence : MonoBehaviour {
 		Choice = ChoiceToggle.isOn;
 		voiced = VoicedToggle.isOn;
 		VAClipPath = VAClipInput.text;
-
-		Update();
 
 		if (ArtworkType == 0 && ArtworkNameDropDown.transform.parent.gameObject.activeInHierarchy) {
 			ArtworkNameDropDown.transform.parent.gameObject.SetActive(false);

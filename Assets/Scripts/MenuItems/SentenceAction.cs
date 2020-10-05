@@ -48,10 +48,100 @@ public class SentenceAction : MonoBehaviour {
 	}
 
 	private void Update() {
-		fileIO = FindObjectOfType<JsonFileIO>();
+		if (fileIO == null) {
+			fileIO = FindObjectOfType<JsonFileIO>();
+		}
+
 		List<string> options = fileIO.GetCharacterList();
 
-		int tmp = CharacterNameDropdown.value;
+		int tmp = fileIO.ReturnCharacterIndex(CharacterName);
+
+		if (options.Count != CharacterNameDropdown.options.Count) {
+			CharacterNameDropdown.ClearOptions();
+			CharacterNameDropdown.AddOptions(options);
+		}
+
+		for (int i = 0; i < CharacterNameDropdown.options.Count; i++) {
+			if (i >= options.Count) {
+				CharacterNameDropdown.ClearOptions();
+				CharacterNameDropdown.AddOptions(options);
+				break;
+			}
+			if (options[i] != CharacterNameDropdown.options[i].text) {
+				CharacterNameDropdown.ClearOptions();
+				CharacterNameDropdown.AddOptions(options);
+			}
+		}
+
+		CharacterNameDropdown.value = tmp;
+
+		if (CharacterNameDropdown.value >= CharacterNameDropdown.options.Count) {
+			CharacterNameDropdown.value = 0;
+		}
+
+		options = fileIO.GetCharacterStates(CharacterName);
+
+		tmp = fileIO.ReturnCharacterStateIndex(CharacterName, StateName);
+
+		if (options.Count != StateNameDropdown.options.Count) {
+			StateNameDropdown.ClearOptions();
+			StateNameDropdown.AddOptions(options);
+		}
+
+		for (int i = 0; i < StateNameDropdown.options.Count; i++) {
+			if (i >= options.Count) {
+				StateNameDropdown.ClearOptions();
+				StateNameDropdown.AddOptions(options);
+				break;
+			}
+			if (options[i] != StateNameDropdown.options[i].text) {
+				StateNameDropdown.ClearOptions();
+				StateNameDropdown.AddOptions(options);
+			}
+		}
+
+		StateNameDropdown.value = tmp;
+
+		if (StateNameDropdown.value >= StateNameDropdown.options.Count) {
+			StateNameDropdown.value = 0;
+		}
+
+		options = fileIO.GetBGMList();
+
+		tmp = BGMName;
+
+		if (options.Count != BGMNameDropdown.options.Count) {
+			BGMNameDropdown.ClearOptions();
+			BGMNameDropdown.AddOptions(options);
+		}
+
+		for (int i = 0; i < BGMNameDropdown.options.Count; i++) {
+			if (i >= options.Count) {
+				BGMNameDropdown.ClearOptions();
+				BGMNameDropdown.AddOptions(options);
+				break;
+			}
+			if (options[i] != BGMNameDropdown.options[i].text) {
+				BGMNameDropdown.ClearOptions();
+				BGMNameDropdown.AddOptions(options);
+			}
+		}
+
+		BGMNameDropdown.value = tmp;
+
+		if (BGMNameDropdown.value >= BGMNameDropdown.options.Count) {
+			BGMNameDropdown.value = 0;
+		}
+	}
+
+	public void SetDropdownValues() {
+		if (fileIO == null) {
+			fileIO = FindObjectOfType<JsonFileIO>();
+		}
+
+		List<string> options = fileIO.GetCharacterList();
+
+		int tmp = fileIO.ReturnCharacterIndex(CharacterName);
 
 		if (options.Count != CharacterNameDropdown.options.Count) {
 			CharacterNameDropdown.ClearOptions();
@@ -138,8 +228,6 @@ public class SentenceAction : MonoBehaviour {
 
 		StateName = StateNameDropdown.captionText.text;
 		Transition = TransitionToggle.isOn;
-
-		Update();
 
 		ManageVariables(ActionTypeDropdown.value);
 
