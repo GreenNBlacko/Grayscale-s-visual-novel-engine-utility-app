@@ -15,6 +15,12 @@ public class ByteSliderUI : MonoBehaviour {
 	public TMP_InputField ItemInput;
 
 	public void SetValue(Slider input) {
+		Slider.SliderEvent bak1 = ItemSlider.onValueChanged;
+		TMP_InputField.OnChangeEvent bak2 = ItemInput.onValueChanged;
+
+		ItemSlider.onValueChanged = new Slider.SliderEvent();
+		ItemInput.onValueChanged = new TMP_InputField.OnChangeEvent();
+
 		value = input.value;
 		value = (float)Math.Round((double)value, 2);
 		ItemInput.text = value.ToString();
@@ -23,9 +29,18 @@ public class ByteSliderUI : MonoBehaviour {
 		} else {
 			colorMenu.UpdateColorHSV();
 		}
+
+		ItemSlider.onValueChanged = bak1;
+		ItemInput.onValueChanged = bak2;
 	}
 
 	public void SetValue(TMP_InputField input) {
+		Slider.SliderEvent bak1 = ItemSlider.onValueChanged;
+		TMP_InputField.OnChangeEvent bak2 = ItemInput.onValueChanged;
+
+		ItemSlider.onValueChanged = new Slider.SliderEvent();
+		ItemInput.onValueChanged = new TMP_InputField.OnChangeEvent();
+
 		if (input.text == "") { input.text = "0"; }
 		value = float.Parse(input.text);
 		value = (float)Math.Round((double)value, 2);
@@ -36,6 +51,9 @@ public class ByteSliderUI : MonoBehaviour {
 		} else {
 			colorMenu.UpdateColorHSV();
 		}
+
+		ItemSlider.onValueChanged = bak1;
+		ItemInput.onValueChanged = bak2;
 	}
 
 	public byte GetValue() {

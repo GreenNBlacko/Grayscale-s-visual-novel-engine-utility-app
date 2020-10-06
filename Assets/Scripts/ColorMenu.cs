@@ -30,15 +30,17 @@ public class ColorMenu : MonoBehaviour {
 
 	// Start is called before the first frame update
 	void Start() {
-		RValue.SetValue(255);
-		GValue.SetValue(255);
-		BValue.SetValue(255);
+		RValue.SetValue(OutColor.r);
+		GValue.SetValue(OutColor.g);
+		BValue.SetValue(OutColor.b);
 
-		HValue.SetValue(1);
-		SValue.SetValue(0);
-		VValue.SetValue(1);
+		Color.RGBToHSV(OutColor, out float H, out float S, out float V);
 
-		HexValue.SetValue("FFFFFF");
+		HValue.SetValue(H);
+		SValue.SetValue(S);
+		VValue.SetValue(V);
+
+		HexValue.SetValue(ColorUtility.ToHtmlStringRGB(OutColor));
 
 		UpdateColorRGB();
 	}
@@ -47,10 +49,10 @@ public class ColorMenu : MonoBehaviour {
 
 	}
 
-	public void UpdateColorRGB() {
+	public void UpdateColorRGB(bool overrideMode = false) {
 		float H, S, V;
 		Color32 tmp = new Color32(RValue.GetValue(), GValue.GetValue(), BValue.GetValue(), 255);
-		if (tmp.r != OutColor.r || tmp.g != OutColor.g || tmp.b != OutColor.b) {
+		if (tmp.r != OutColor.r || tmp.g != OutColor.g || tmp.b != OutColor.b || overrideMode) {
 			Color.RGBToHSV(tmp, out H, out S, out V);
 			HValue.SetValue(H);
 			SValue.SetValue(S);
@@ -119,7 +121,13 @@ public class ColorMenu : MonoBehaviour {
 		GValue.SetValue(colorRGB[1]);
 		BValue.SetValue(colorRGB[2]);
 
-		UpdateColorRGB();
+		UpdateColorRGB(true);
+	}
+
+	public void SetColor(Color32 colorRGB) {
+		RValue.SetValue(colorRGB.r);
+		GValue.SetValue(colorRGB.g);
+		BValue.SetValue(colorRGB.b);
 	}
 
 	public void CloseMenu() {

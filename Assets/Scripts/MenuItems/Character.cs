@@ -211,6 +211,8 @@ public class Character : MonoBehaviour {
 	}
 
 	public void OpenColorMenu(int index) {
+		if(Colors[index].OutColor != CharacterColorDisplays[index].color)
+			Colors[index].SetColor(CharacterColorDisplays[index].color);
 		ColorMenus[index].SetActive(true);
 	}
 

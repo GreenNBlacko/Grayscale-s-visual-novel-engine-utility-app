@@ -2,6 +2,7 @@ using JetBrains.Annotations;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using TMPro;
 using UnityEngine;
 
@@ -509,7 +510,9 @@ public class JsonFileIO : MonoBehaviour {
 								tempSentenceAction.FadeIn = sentenceAction.FadeIn;
 								tempSentenceAction.FadeOut = sentenceAction.FadeOut;
 								tempSentenceAction.FadeSpeed = sentenceAction.FadeSpeed;
-								tempSentenceAction.BGMName = GetBGMList()[sentenceAction.BGMName];
+								List<string> bgmList = GetBGMList();
+								if (bgmList.Count() != 0)
+									tempSentenceAction.BGMName = bgmList[sentenceAction.BGMName];
 								tempSentenceAction.Delay = sentenceAction.Delay;
 
 								sentenceActions.Add(tempSentenceAction);
