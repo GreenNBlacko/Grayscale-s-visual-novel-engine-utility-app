@@ -7,6 +7,7 @@ using UnityEngine;
 
 public class JsonFileIO : MonoBehaviour {
 	public TMP_Text titleText;
+	public TMP_Text EditFileMenuTitleText;
 
 	[Space(15)]
 	public GameObject LoadFileMenu;
@@ -59,6 +60,7 @@ public class JsonFileIO : MonoBehaviour {
 			loadedFile = Path;
 
 			titleText.text = "Currently loaded file: </b>" + Path + "/Sentences.json" + "</b>";
+			EditFileMenuTitleText.text = "Editing file: </b>" + Path + "/Sentences.json" + "</b>";
 
 			UpdateMenus(JsonUtility.FromJson<SentencesData>(jsonData));
 		} else {

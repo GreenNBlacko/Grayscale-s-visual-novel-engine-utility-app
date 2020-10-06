@@ -161,6 +161,12 @@ public class Character : MonoBehaviour {
 
 			CharacterStateMenu.GetComponent<ItemMenu>().title.text = "Character States(" + CharacterName + ")";
 			CharacterStateMenu.GetComponent<ItemMenu>().MenuName = CharacterName + "CharacterStates";
+
+			foreach(Menu menu in menuSystem.menus) {
+				if(menu.MenuObject == CharacterStateMenu.transform) {
+					menu.MenuName = CharacterName + "CharacterStates";
+				}
+			}
 		}
 
 		if (GradientType == 0) {
