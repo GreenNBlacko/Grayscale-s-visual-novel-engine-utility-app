@@ -151,9 +151,64 @@ public class Sentence : MonoBehaviour {
 
 	}
 
-	public void SetValues() {
-		Update();
+	public void UpdateLists() {
+		fileIO = FindObjectOfType<JsonFileIO>();
+		List<string> options = fileIO.GetCharacterList();
 
+		int tmp = fileIO.ReturnCharacterIndex(CharacterName);
+
+		if (options.Count != NameDropDown.options.Count) {
+			NameDropDown.ClearOptions();
+			NameDropDown.AddOptions(options);
+		}
+
+		for (int i = 0; i < NameDropDown.options.Count; i++) {
+			if (i >= options.Count) {
+				NameDropDown.ClearOptions();
+				NameDropDown.AddOptions(options);
+				break;
+			}
+			if (options[i] != NameDropDown.options[i].text) {
+				NameDropDown.ClearOptions();
+				NameDropDown.AddOptions(options);
+			}
+		}
+
+		NameDropDown.value = tmp;
+
+		if (NameDropDown.value >= NameDropDown.options.Count) {
+			NameDropDown.value = 0;
+		}
+
+		options = fileIO.GetArtworkList(ArtworkType - 1);
+
+		tmp = ArtworkName;
+
+		if (options.Count != ArtworkNameDropDown.options.Count) {
+			ArtworkNameDropDown.ClearOptions();
+			ArtworkNameDropDown.AddOptions(options);
+		}
+
+		for (int i = 0; i < ArtworkNameDropDown.options.Count; i++) {
+			if (i >= options.Count) {
+				ArtworkNameDropDown.ClearOptions();
+				ArtworkNameDropDown.AddOptions(options);
+				break;
+			}
+			if (options[i] != ArtworkNameDropDown.options[i].text) {
+				ArtworkNameDropDown.ClearOptions();
+				ArtworkNameDropDown.AddOptions(options);
+			}
+		}
+
+		ArtworkNameDropDown.value = tmp;
+
+		if (ArtworkNameDropDown.value >= ArtworkNameDropDown.options.Count) {
+			ArtworkNameDropDown.value = 0;
+		}
+	}
+
+	public void SetValues() {
 		CharacterName = NameDropDown.captionText.text;
 		Text = SentenceText.text;
 		ArtworkType = ArtworkTypeDropDown.value;

@@ -50,13 +50,47 @@ public class Choice : MonoBehaviour {
 		}
 	}
 
+	public void UpdateLists() {
+		fileIO = FindObjectOfType<JsonFileIO>();
+		List<string> options = fileIO.ReturnAllChapters();
+		options.RemoveAt(0);
+
+		int tmp = ChoiceChapter;
+
+		if (options.Count != ChoiceChapterInput.options.Count) {
+			ChoiceChapterInput.ClearOptions();
+			ChoiceChapterInput.AddOptions(options);
+		}
+
+		for (int i = 0; i < ChoiceChapterInput.options.Count; i++) {
+			if (i >= options.Count) {
+				ChoiceChapterInput.ClearOptions();
+				ChoiceChapterInput.AddOptions(options);
+				break;
+			}
+			if (options[i] != ChoiceChapterInput.options[i].text) {
+				ChoiceChapterInput.ClearOptions();
+				ChoiceChapterInput.AddOptions(options);
+			}
+		}
+
+		ChoiceChapterInput.value = tmp;
+
+		if (ChoiceChapterInput.value >= ChoiceChapterInput.options.Count) {
+			ChoiceChapterInput.value = 0;
+		}
+	}
+
 	public void SetValue(TMP_InputField input) {
 		ChoiceText = input.text;
 	}
 
 	public void SetValue(TMP_Dropdown input) {
-		Update();
 		ChoiceChapter = input.value;
+	}
+
+	public void SetValues() {
+
 	}
 
 	public void RemoveItem() {

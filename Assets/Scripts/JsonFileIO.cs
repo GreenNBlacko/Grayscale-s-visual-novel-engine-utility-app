@@ -186,6 +186,8 @@ public class JsonFileIO : MonoBehaviour {
 
 				characterStateObject.GetComponent<CharacterState>().SetValues();
 			}
+
+			characterObject.GetComponent<Character>().SetValues();
 		}
 
 		foreach(ArtworkData artwork in data.artworkData) {
@@ -266,6 +268,12 @@ public class JsonFileIO : MonoBehaviour {
 					tempSentence.ArtworkName = sentence.CG_ID;
 				}
 
+				if (sentence.ArtworkType == 1)
+					tempSentence.ArtworkNameDropDown.value = sentence.BG_ID;
+				else if (sentence.ArtworkType == 2) {
+					tempSentence.ArtworkNameDropDown.value = sentence.CG_ID;
+				}
+
 				tempSentence.ArtworkNameDropDown.onValueChanged = tempAction;
 
 				tempSentence.ChoiceToggle.isOn = sentence.Choice;
@@ -275,6 +283,7 @@ public class JsonFileIO : MonoBehaviour {
 
 				chapterObject.GetComponent<Chapter>().CreateSentenceSubmenus();
 
+				tempSentence.UpdateLists();
 				tempSentence.SetValues();
 
 				foreach (ChoiceOptionData choice in sentence.choiceOptions) {
@@ -282,23 +291,11 @@ public class JsonFileIO : MonoBehaviour {
 
 					choiceObject.TryGetComponent(out Choice tempChoice);
 
-					List<string> chapterNames = ReturnAllChapters();
-					chapterNames.RemoveAt(0);
-
-					tempChoice.ChoiceChapterInput.options.Clear();
-					foreach (string chapterName in chapterNames) {
-						TMP_Dropdown.OptionData name = new TMP_Dropdown.OptionData() { text = chapterName };
-						tempChoice.ChoiceChapterInput.options.Add(name);
-					}
-
-					TMP_Dropdown.DropdownEvent tmp = tempChoice.ChoiceChapterInput.onValueChanged;
-					tempChoice.ChoiceChapterInput.onValueChanged = new TMP_Dropdown.DropdownEvent();
-
-					tempChoice.ChoiceChapterInput.value = choice.OptionID;
 					tempChoice.ChoiceChapter = choice.OptionID;
-					tempChoice.ChoiceTextInput.text = choice.OptionText;
 
-					tempChoice.ChoiceChapterInput.onValueChanged = tmp;
+					tempChoice.UpdateLists();
+
+					tempChoice.ChoiceTextInput.text = choice.OptionText;
 				}
 
 				foreach (SentenceActionData sentenceAction in sentence.sentenceActions) {
@@ -510,9 +507,7 @@ public class JsonFileIO : MonoBehaviour {
 								tempSentenceAction.FadeIn = sentenceAction.FadeIn;
 								tempSentenceAction.FadeOut = sentenceAction.FadeOut;
 								tempSentenceAction.FadeSpeed = sentenceAction.FadeSpeed;
-								List<string> bgmList = GetBGMList();
-								if (bgmList.Count() != 0)
-									tempSentenceAction.BGMName = bgmList[sentenceAction.BGMName];
+								tempSentenceAction.BGMName = ReturnBGMName(sentenceAction.BGMName);
 								tempSentenceAction.Delay = sentenceAction.Delay;
 
 								sentenceActions.Add(tempSentenceAction);
@@ -608,7 +603,7 @@ public class JsonFileIO : MonoBehaviour {
 		chapterNames.Add("None");
 
 		foreach (Transform child in ChapterMenu.ItemList) {
-			if (!child.TryGetComponent(out Chapter chapter)) { continue; }
+			if (!child.TryGetComponent(out Chapter chapter)) { child.SetAsLastSibling(); continue; }
 			chapterNames.Add(chapter.ChapterName);
 		}
 
@@ -621,7 +616,7 @@ public class JsonFileIO : MonoBehaviour {
 		foreach (Transform temp in CharacterMenu.ItemList) {
 			temp.TryGetComponent(out Character character);
 
-			if (character == null) { continue; }
+			if (character == null) { temp.SetAsLastSibling(); continue; }
 			characters.Add(character.CharacterName);
 		}
 
@@ -640,7 +635,7 @@ public class JsonFileIO : MonoBehaviour {
 		foreach (Transform temp in ArtworkMenu.ItemList) {
 			temp.TryGetComponent(out Artwork artwork);
 
-			if (artwork == null) { continue; }
+			if (artwork == null) { temp.SetAsLastSibling(); continue; }
 			if (artwork.ArtworkType == Type)
 				artworks.Add(artwork.ArtworkName);
 		}
@@ -654,7 +649,9 @@ public class JsonFileIO : MonoBehaviour {
 		foreach (Transform temp in BGMMenu.ItemList) {
 			if (temp.TryGetComponent(out BGM bgm)) {
 				BGMs.Add(bgm.BGMName);
+				continue;
 			}
+			temp.SetAsLastSibling();
 		}
 
 		return BGMs;
@@ -667,13 +664,30 @@ public class JsonFileIO : MonoBehaviour {
 			if (obj.TryGetComponent(out Character character)) {
 				if (character.CharacterName == CharacterName) {
 					foreach (Transform charState in character.GetCharacterStatesMenu().ItemList) {
-						if (charState.TryGetComponent(out CharacterState characterState)) { characterStates.Add(characterState.StateName); }
+						if (charState.TryGetComponent(out CharacterState characterState)) { characterStates.Add(characterState.StateName); continue; }
+						charState.SetAsLastSibling();
 					}
 				}
 			}
 		}
 
 		return characterStates;
+	}
+
+	public string ReturnBGMName(int Index) {
+		List<string> bgms = GetBGMList();
+
+		Debug.Log(Index + " " + bgms.Count());
+
+		try {
+			return bgms[Index];
+		} catch {
+			try {
+				return bgms.Last();
+			} catch {
+				return "";
+			}
+		}
 	}
 
 	public int ReturnArtworkIndex(int ArtworkType, string ArtworkName) {

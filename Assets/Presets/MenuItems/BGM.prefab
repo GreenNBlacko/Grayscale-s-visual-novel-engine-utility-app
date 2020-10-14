@@ -968,7 +968,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 3997292653460292314}
         m_TargetAssemblyTypeName: BGM, Assembly-CSharp
         m_MethodName: RemoveItem
         m_Mode: 1

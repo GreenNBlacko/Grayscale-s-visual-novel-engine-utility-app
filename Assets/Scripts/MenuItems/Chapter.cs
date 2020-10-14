@@ -109,16 +109,10 @@ public class Chapter : MonoBehaviour {
 
 		MenuSystem.menus[index].MenuName = input.text + "Sentences";
 
-		SentencesMenu.name = input.text + "Sentences";
-		SentencesMenu.GetComponent<ItemMenu>().MenuName = SentencesMenu.name;
-		SentencesMenu.GetComponent<ItemMenu>().ParentMenu = MenuSystem.currentlyLodadedMenu;
-		if (SentencesMenu.GetComponent<ItemMenu>().ItemList.childCount <= 1) { ChapterName = input.text; return; }
-		foreach (Transform sen in SentencesMenu.GetComponent<ItemMenu>().ItemList) {
-			sen.TryGetComponent(out Sentence sentence);
+		if (fileIO == null) { fileIO = FindObjectOfType<JsonFileIO>(); }
+		ChapterName = input.text;
 
-			if (sentence == null) { continue; }
-			sentence.UpdateMenuNames();
-		}
+		UpdateMenuNames(fileIO.ChapterMenu.MenuName);
 	}
 
 	public void UpdateMenuNames(string ParentMenu) {
