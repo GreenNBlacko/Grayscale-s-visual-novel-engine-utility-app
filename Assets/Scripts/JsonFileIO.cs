@@ -303,28 +303,6 @@ public class JsonFileIO : MonoBehaviour {
 
 					sentenceActionsObject.TryGetComponent(out SentenceAction tempSentenceAction);
 
-					tempSentenceAction.ActionTypeDropdown.value = sentenceAction.ActionType;
-
-					characterNames = GetCharacterList();
-
-					tempSentenceAction.CharacterNameDropdown.options.Clear();
-					foreach (string characterName in characterNames) {
-						TMP_Dropdown.OptionData name = new TMP_Dropdown.OptionData() { text = characterName };
-						tempSentenceAction.CharacterNameDropdown.options.Add(name);
-					}
-
-					tempSentenceAction.CharacterNameDropdown.value = ReturnCharacterIndex(sentenceAction.CharacterName);
-
-					List<string> characterStateNames = GetCharacterStates(sentenceAction.CharacterName);
-
-					tempSentenceAction.StateNameDropdown.options.Clear();
-					foreach (string characterState in characterStateNames) {
-						TMP_Dropdown.OptionData name = new TMP_Dropdown.OptionData() { text = characterState };
-						tempSentenceAction.StateNameDropdown.options.Add(name);
-					}
-
-					tempSentenceAction.StateNameDropdown.value = ReturnCharacterStateIndex(sentenceAction.CharacterName, sentenceAction.StateName);
-
 					tempSentenceAction.TransitionToggle.isOn = sentenceAction.Transition;
 					tempSentenceAction.StartingPositionDropdown.value = sentenceAction.startingPosition;
 					tempSentenceAction.StartingPositionInput[0].text = sentenceAction.customStartingPosition.x.ToString();
@@ -336,21 +314,17 @@ public class JsonFileIO : MonoBehaviour {
 					tempSentenceAction.FadeOutToggle.isOn = sentenceAction.FadeOut;
 					tempSentenceAction.FadeSpeedSlider.value = sentenceAction.FadeSpeed;
 
-					tempSentenceAction.BGMNameDropdown.options.Clear();
+					tempSentenceAction.ActionType = sentenceAction.ActionType;
 
-					List<string> BGMNames = GetBGMList();
+					tempSentenceAction.CharacterName = sentenceAction.CharacterName;
 
-					tempSentenceAction.BGMNameDropdown.options.Clear();
-					foreach (string BGMName in BGMNames) {
-						TMP_Dropdown.OptionData name = new TMP_Dropdown.OptionData() { text = BGMName };
-						tempSentenceAction.CharacterNameDropdown.options.Add(name);
-					}
+					tempSentenceAction.StateName = sentenceAction.StateName;
 
 					tempSentenceAction.BGMName = ReturnBGMIndex(sentenceAction.BGMName);
 
-					tempSentenceAction.DelayInput.text = sentenceAction.Delay.ToString();
-
 					tempSentenceAction.SetDropdownValues();
+
+					tempSentenceAction.DelayInput.text = sentenceAction.Delay.ToString();
 
 					tempSentenceAction.SetValues();
 				}

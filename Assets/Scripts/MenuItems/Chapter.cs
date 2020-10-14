@@ -90,6 +90,11 @@ public class Chapter : MonoBehaviour {
 	}
 
 	public void ShowSentenceMenu() {
+		foreach(Transform menu in SentencesMenu.GetComponent<ItemMenu>().ItemList) {
+			if(menu.TryGetComponent(out Sentence sentence)) {
+				sentence.UpdateLists();
+			}
+		}
 		MenuSystem.LoadMenu(SentencesMenu.GetComponent<ItemMenu>().MenuName);
 	}
 
