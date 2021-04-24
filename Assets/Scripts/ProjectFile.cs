@@ -6,6 +6,8 @@ public class ProjectFile : MonoBehaviour {
 
 	public string FilePath;
 
+	public bool ConvertModeOn;
+
 	private JsonFileIO jsonFileIO;
 
 	// Start is called before the first frame update
@@ -15,7 +17,11 @@ public class ProjectFile : MonoBehaviour {
 	}
 
 	public void LoadFile() {
-		jsonFileIO.LoadFile(FilePath);
+		if(ConvertModeOn) {
+			jsonFileIO.LoadFileV1(FilePath);
+		} else {
+			jsonFileIO.LoadFile(FilePath);
+		}
 		jsonFileIO.CloseFileLoad();
 	}
 

@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
-using UnityEngine.UIElements;
 
 public class MenuSystem : MonoBehaviour {
 
@@ -18,10 +15,10 @@ public class MenuSystem : MonoBehaviour {
 	void Start() {
 		FileIO = FindObjectOfType<JsonFileIO>();
 		if (StartMenu == "") {
-			LoadMenu(menus[0].MenuName);
-		} else {
-			LoadMenu(StartMenu);
+			StartMenu = menus[0].MenuName;
 		}
+
+		LoadMenu(StartMenu);
 	}
 
 	void Update() {

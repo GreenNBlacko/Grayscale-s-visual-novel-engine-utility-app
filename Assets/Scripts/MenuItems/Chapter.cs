@@ -134,7 +134,13 @@ public class Chapter : MonoBehaviour {
 
 	public void SetValues() {
 		fileIO = FindObjectOfType<JsonFileIO>();
-		List<string> options = fileIO.ReturnAllChapters();
+		List<string> options = new List<string>();
+		options.Add("None");
+		options.AddRange(fileIO.ReturnAllChapters().ToArray());
+
+		int tmp = NextChapter + 1;
+
+		Debug.Log(options.Count);
 
 		if (options.Count != NextChapterList.options.Count) {
 			NextChapterList.ClearOptions();
@@ -153,7 +159,7 @@ public class Chapter : MonoBehaviour {
 			}
 		}
 
-		NextChapterList.value = NextChapter + 1;
+		NextChapterList.value = tmp;
 
 		if (NextChapterList.value >= NextChapterList.options.Count) {
 			NextChapterList.value = 0;

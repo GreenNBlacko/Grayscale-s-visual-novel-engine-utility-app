@@ -5,17 +5,17 @@ using UnityEngine.UI;
 
 public class Sentence : MonoBehaviour {
 	public string CharacterName;
+	public bool OverrideName;
+	public string DisplayName;
 	public string Text;
-	public int ArtworkType;
-	public int ArtworkName;
 	public bool Choice;
 	public bool voiced;
 	public string VAClipPath;
 
 	public TMP_Dropdown NameDropDown;
+	public Toggle NameOverrideToggle;
+	public TMP_InputField DisplayNameText;
 	public TMP_InputField SentenceText;
-	public TMP_Dropdown ArtworkTypeDropDown;
-	public TMP_Dropdown ArtworkNameDropDown;
 	public Toggle ChoiceToggle;
 	public Button ChoiceButton;
 	public Toggle VoicedToggle;
@@ -128,49 +128,22 @@ public class Sentence : MonoBehaviour {
 		if (NameDropDown.value >= NameDropDown.options.Count) {
 			NameDropDown.value = 0;
 		}
-
-		options = fileIO.GetArtworkList(ArtworkType - 1);
-
-		tmp = ArtworkName;
-
-		if (options.Count != ArtworkNameDropDown.options.Count) {
-			ArtworkNameDropDown.ClearOptions();
-			ArtworkNameDropDown.AddOptions(options);
-		}
-
-		for (int i = 0; i < ArtworkNameDropDown.options.Count; i++) {
-			if (i >= options.Count) {
-				ArtworkNameDropDown.ClearOptions();
-				ArtworkNameDropDown.AddOptions(options);
-				break;
-			}
-			if (options[i] != ArtworkNameDropDown.options[i].text) {
-				ArtworkNameDropDown.ClearOptions();
-				ArtworkNameDropDown.AddOptions(options);
-			}
-		}
-
-		ArtworkNameDropDown.value = tmp;
-
-		if (ArtworkNameDropDown.value >= ArtworkNameDropDown.options.Count) {
-			ArtworkNameDropDown.value = 0;
-		}
 	}
 
 	public void SetValues() {
 		CharacterName = NameDropDown.captionText.text;
+		OverrideName = NameOverrideToggle.isOn;
+		DisplayName = DisplayNameText.text;
 		Text = SentenceText.text;
-		ArtworkType = ArtworkTypeDropDown.value;
-		ArtworkName = ArtworkNameDropDown.value;
 		Choice = ChoiceToggle.isOn;
 		voiced = VoicedToggle.isOn;
 		VAClipPath = VAClipInput.text;
 
-		if (ArtworkType == 0 && ArtworkNameDropDown.transform.parent.gameObject.activeInHierarchy) {
-			ArtworkNameDropDown.transform.parent.gameObject.SetActive(false);
+		if(OverrideName && !DisplayNameText.transform.parent.gameObject.activeInHierarchy) {
+			DisplayNameText.transform.parent.gameObject.SetActive(true);
 		}
-		if (ArtworkType != 0 && !ArtworkNameDropDown.transform.parent.gameObject.activeInHierarchy) {
-			ArtworkNameDropDown.transform.parent.gameObject.SetActive(true);
+		if (!OverrideName && DisplayNameText.transform.parent.gameObject.activeInHierarchy) {
+			DisplayNameText.transform.parent.gameObject.SetActive(false);
 		}
 
 		if (Choice && !ChoiceButton.transform.parent.gameObject.activeInHierarchy) {
